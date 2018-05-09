@@ -11,7 +11,8 @@ import java.util.List;
 
 public class HelloJmeterTester extends AbstractJavaSamplerClient {
 
-    String name;
+    private String name;
+    private UseCaseTester useCaseTester;
 
     public static void main(String[] args) {
         System.out.println("hello HelloJmeterTester");
@@ -37,6 +38,7 @@ public class HelloJmeterTester extends AbstractJavaSamplerClient {
     @Override
     public void setupTest(JavaSamplerContext jsc) {
         name = jsc.getParameter("name", "");
+        useCaseTester = new UseCaseTester();
     }
 
     public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
@@ -46,13 +48,17 @@ public class HelloJmeterTester extends AbstractJavaSamplerClient {
 
         results.sampleStart();
 
-        sleep(50);
+        String result = useCaseTester.get();
 
         results.sampleEnd();
 
-        results.setResponseData("hello: " + name, "UTF-8");
+        results.setResponseData("hello: " + name + ", result:" + result, "UTF-8");
 
-        results.setSuccessful(true);
+        if (result == null || result.equalsIgnoreCase("failure")) {
+            results.setSuccessful(false);
+        } else {
+            results.setSuccessful(true);
+        }
 
         return results;
     }
